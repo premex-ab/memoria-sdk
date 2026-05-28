@@ -26,6 +26,14 @@ export interface Edge {
   confidence: number | null;
 }
 
+/**
+ * Edge with its supersession target hydrated. Returned by entity-history
+ * responses so chains can be rendered without follow-up round-trips.
+ */
+export interface EdgeWithSupersession extends Edge {
+  supersededByEdge: Edge | null;
+}
+
 export interface Entity {
   id: string;
   name: string;
@@ -53,6 +61,50 @@ export interface Episode {
   producedEdgeIds: string[];
   extractionStatus?: ExtractionStatus;
   extractionError?: string;
+}
+
+/**
+ * Polling response for the async ingest path. Returned by
+ * `getExtractionStatus()` after a `remember({ ..., async: true })` call.
+ */
+export interface ExtractionStatusResponse {
+  status: ExtractionStatus;
+  entityCount: number;
+  edgeCount: number;
+  /** Failure message; present only when `status === 'failed'`. */
+  error?: string;
+}
+
+/**
+ * Entry in an entity's bi-temporal history.
+ */
+export interface EntityHistoryEntry {
+  edge: EdgeWithSupersession;
+}
+
+/**
+ * Response from `getEntityHistory()`. The `edges` are ordered by
+ * `tIngested` desc and bi-temporally filtered by `asOf`.
+ */
+export interface EntityHistoryResponse {
+  entity: Entity;
+  asOf: IsoTimestamp;
+  edges: EdgeWithSupersession[];
+}
+
+/**
+ * Entry in `getRelatedEdges()` results. `score` is the number of endpoint
+ * entities shared with the seed edge (1 or 2).
+ */
+export interface RelatedEdgeEntry {
+  edge: Edge;
+  score: 1 | 2;
+  sharedEntities: string[];
+}
+
+export interface RelatedEdgesResponse {
+  seedEdge: Edge;
+  related: RelatedEdgeEntry[];
 }
 
 export interface PlaybookScope {

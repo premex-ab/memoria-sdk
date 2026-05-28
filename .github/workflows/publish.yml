@@ -49,7 +49,16 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
 
+      # Trusted publishing needs npm >= 11.5.1; Node 22's bundled npm is
+      # often older, so upgrade explicitly before any publish-adjacent step.
+      - run: npm install -g npm@latest
+
       - run: npm ci
+
+      - name: Diagnostics
+        run: |
+          node --version
+          npm --version
 
       - name: Verify tag matches package version
         if: github.event_name == 'push'

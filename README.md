@@ -51,15 +51,66 @@ This is the headline feature — most memory products only track ingestion time,
 
 ## API
 
+**Episodes**
 | Method | Endpoint |
 |---|---|
-| `remember(params)` | `POST /v1/episodes` |
-| `recall(params)` | `POST /v1/recall` |
-| `getEntity(id)` | `GET /v1/entities/:id` |
-| `getEdge(id)` | `GET /v1/edges/:id` |
+| `remember(params)` | `POST /v1/episodes` — runs the 7-stage extraction pipeline |
 | `getEpisode(id)` | `GET /v1/episodes/:id` |
+| `getExtractionStatus(id)` | `GET /v1/episodes/:id/extraction-status` — poll after async ingest |
+
+**Recall**
+| Method | Endpoint |
+|---|---|
+| `recall(params)` | `POST /v1/recall` — hybrid dense + sparse + graph retrieval |
+
+**Entities**
+| Method | Endpoint |
+|---|---|
+| `createEntity(params)` | `POST /v1/entities` — pre-seed before writing episodes |
+| `getEntity(id)` | `GET /v1/entities/:id` |
+| `getEntityHistory(id, opts?)` | `GET /v1/entities/:id/history` — bi-temporal timeline |
+
+**Edges**
+| Method | Endpoint |
+|---|---|
+| `relate(params)` | `POST /v1/edges` — create a bi-temporal fact between entities |
+| `getEdge(id)` | `GET /v1/edges/:id` |
+| `getRelatedEdges(id, opts?)` | `GET /v1/edges/:id/related` — neighbors of a seed edge |
+| `forget(id, params)` | `PATCH /v1/edges/:id/invalidate` — mark an edge invalid at event time |
+
+**Playbooks**
+| Method | Endpoint |
+|---|---|
 | `listPlaybooks()` | `GET /v1/playbooks` |
 | `getPlaybook(id)` | `GET /v1/playbooks/:id` |
+| `regeneratePlaybook(scope)` | `POST /v1/playbooks/regenerate` |
+
+### Examples — the 0.2.0 additions
+
+```ts
+// Pre-seed an entity, then create an explicit edge between two known ids.
+const repo = await memoria.createEntity({ name: 'acme-web', type: 'repo' });
+const tool = await memoria.createEntity({ name: 'vite', type: 'build_tool' });
+const edge = await memoria.relate({
+  fromEntityId: repo.id,
+  toEntityId: tool.id,
+  factText: 'acme-web uses vite',
+  relationType: 'uses_build_tool',
+  tValid: '2026-05-25T00:00:00Z',
+});
+
+// Time travel: timeline of edges that ever touched the entity
+const { edges } = await memoria.getEntityHistory(repo.id, {
+  asOf: '2026-05-01T00:00:00Z',
+  limit: 20,
+});
+
+// Mark an edge as no longer valid as of an event time
+await memoria.forget(edge.id, { tInvalid: '2026-06-15T00:00:00Z' });
+
+// Trigger a playbook regenerate for a scope (branch, file, or sessionId)
+await memoria.regeneratePlaybook({ branch: 'main' });
+```
 
 ### Errors
 

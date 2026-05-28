@@ -1,0 +1,79 @@
+name: Publish
+
+# Tag-triggered publish to public npm via trusted publishing (OIDC).
+#
+# Usage:
+#   1. Bump version in package.json + add CHANGELOG entry
+#   2. Commit, push, merge to main
+#   3. git tag v0.2.0 && git push origin v0.2.0
+#
+# Setup (one-time, after the first manual `npm publish` claims the
+# package name):
+#   - On npmjs.com → package @premex/memoria → Settings → Trusted Publishers
+#   - Add GitHub Actions publisher:
+#       Organization: premex-ab
+#       Repository: memoria-sdk
+#       Workflow filename: publish.yml
+#       Environment: (leave empty)
+#
+# No secrets needed once trusted publishing is configured — the OIDC
+# token exchange happens automatically. Provenance is generated
+# automatically too (npm 11.5.1+).
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Publish with --dry-run (validates without uploading)'
+        type: boolean
+        default: false
+
+permissions:
+  id-token: write  # Required for OIDC token exchange
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Verify tag matches package version
+        if: github.event_name == 'push'
+        env:
+          TAG_REF: ${{ github.ref_name }}
+        run: |
+          pkg_version=$(node -p "require('./package.json').version")
+          # TAG_REF looks like v0.2.0 — strip the leading v
+          tag_version="${TAG_REF#v}"
+          if [ "$pkg_version" != "$tag_version" ]; then
+            echo "::error::Tag version ($tag_version) does not match package.json version ($pkg_version)"
+            exit 1
+          fi
+          echo "Publishing @premex/memoria@$pkg_version"
+
+      - run: npm run lint
+
+      - run: npm run typecheck
+
+      - run: npm test
+
+      - run: npm run build
+
+      - name: Publish to npm
+        env:
+          DRY_RUN_FLAG: ${{ inputs.dry_run == true && '--dry-run' || '' }}
+        run: npm publish $DRY_RUN_FLAG

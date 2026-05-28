@@ -1,0 +1,65 @@
+{
+  "name": "@premex/memoria",
+  "version": "0.1.0",
+  "description": "Official TypeScript client for Memoria — bi-temporal knowledge-graph memory for AI agents.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome check src tests",
+    "lint:fix": "biome check --write src tests",
+    "format": "biome format --write src tests",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run test && npm run build"
+  },
+  "keywords": [
+    "memoria",
+    "memory",
+    "agent",
+    "ai",
+    "mcp",
+    "knowledge-graph",
+    "rag",
+    "llm",
+    "anthropic",
+    "openai"
+  ],
+  "author": "Premex AB",
+  "license": "MIT",
+  "homepage": "https://memoria.premex.se",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/premex-ab/memoria-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/premex-ab/memoria-sdk/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.15",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

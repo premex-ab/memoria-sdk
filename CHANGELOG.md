@@ -4,6 +4,10 @@ All notable changes to `@premex/memoria` are documented here. This project follo
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-05-28
+
+No functional changes — verifies the trusted-publishing (OIDC) release pipeline end-to-end. Starting with this release, every tarball on npm is signed with [provenance attestation](https://docs.npmjs.com/generating-provenance-statements) linking back to the exact GitHub Actions workflow run that built it.
+
 ## [0.1.0] — 2026-05-28
 
 Initial public release.
@@ -14,5 +18,6 @@ Initial public release.
 - Wire types: `Edge`, `Entity`, `Episode`, `Playbook`, plus their supporting unions.
 - Bi-temporal recall via the `asOf` parameter.
 
-[Unreleased]: https://github.com/premex-ab/memoria-sdk/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/premex-ab/memoria-sdk/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/premex-ab/memoria-sdk/releases/tag/v0.1.1
 [0.1.0]: https://github.com/premex-ab/memoria-sdk/releases/tag/v0.1.0

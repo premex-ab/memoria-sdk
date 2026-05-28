@@ -4,6 +4,10 @@ All notable changes to `@premex/memoria` are documented here. This project follo
 
 ## [Unreleased]
 
+## [0.1.3] — 2026-05-28
+
+CI/CD only — clear the placeholder `NODE_AUTH_TOKEN` that `actions/setup-node` injects so npm CLI falls through to OIDC trusted-publishing instead of trying to authenticate with a literal `XXXXX-XXXXX-XXXXX-XXXXX` token. See [actions/setup-node#1027](https://github.com/actions/setup-node/issues/1027).
+
 ## [0.1.2] — 2026-05-28
 
 CI/CD only — upgrade the publish workflow to install `npm@latest` before publishing so trusted publishing's OIDC path (which requires npm ≥ 11.5.1) is guaranteed available.
@@ -22,7 +26,8 @@ Initial public release.
 - Wire types: `Edge`, `Entity`, `Episode`, `Playbook`, plus their supporting unions.
 - Bi-temporal recall via the `asOf` parameter.
 
-[Unreleased]: https://github.com/premex-ab/memoria-sdk/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/premex-ab/memoria-sdk/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/premex-ab/memoria-sdk/releases/tag/v0.1.3
 [0.1.2]: https://github.com/premex-ab/memoria-sdk/releases/tag/v0.1.2
 [0.1.1]: https://github.com/premex-ab/memoria-sdk/releases/tag/v0.1.1
 [0.1.0]: https://github.com/premex-ab/memoria-sdk/releases/tag/v0.1.0

@@ -82,7 +82,16 @@ jobs:
 
       - run: npm run build
 
-      - name: Publish to npm
+      - name: Publish to npm (trusted publishing via OIDC)
         env:
           DRY_RUN_FLAG: ${{ inputs.dry_run == true && '--dry-run' || '' }}
-        run: npm publish $DRY_RUN_FLAG
+          # Unset the placeholder NODE_AUTH_TOKEN that setup-node injects.
+          # If left set (to the literal "XXXXX-XXXXX-XXXXX-XXXXX" placeholder),
+          # npm sends that as the bearer token and the registry rejects it
+          # with 404 instead of falling through to the OIDC trusted-publishing
+          # flow. See actions/setup-node#1027.
+          NODE_AUTH_TOKEN: ''
+        run: |
+          npm config delete //registry.npmjs.org/:_authToken --location=user || true
+          npm config delete //registry.npmjs.org/:_authToken --location=project || true
+          npm publish $DRY_RUN_FLAG

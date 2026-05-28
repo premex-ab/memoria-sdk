@@ -12,6 +12,10 @@ concurrency:
 
 jobs:
   test:
+    # The org-wide ruleset on premex-ab requires a check named "CI" on
+    # the default branch. The job's `name:` is what shows up as the check
+    # name on PRs; pin it to "CI" so the rule is satisfied.
+    name: CI
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
